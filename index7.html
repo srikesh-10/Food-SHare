@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Food Waste Platform | Saving Surplus. Serving Lives</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Lottie -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.10.2/lottie.min.js" defer></script>
+
+  <style>
+    :root {
+      --primary: #FF6B6B;
+      --secondary: #FFD93D;
+      --accent: #4D96FF;
+      --bg: #F8F9FA;
+      --card-bg: rgba(255,255,255,0.7);
+      --text-primary: #333333;
+      --text-secondary: #555555;
+      --radius: 20px;
+      --shadow-light: rgba(255,255,255,0.8);
+      --shadow-dark: rgba(0,0,0,0.1);
+    }
+
+    * { box-sizing: border-box; font-family: 'Roboto', sans-serif; margin:0; padding:0; }
+
+    body { background: var(--bg); color: var(--text-primary); }
+
+    /* Header */
+    header {
+      display:flex; justify-content: space-between; align-items:center;
+      padding:1rem 3rem; background: #fff; border-bottom: 1px solid #eee;
+      position: sticky; top:0; z-index:1000;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.05);
+    }
+    header h1 { color: var(--primary); font-weight:700; font-size:1.8rem; letter-spacing:1px; }
+    nav a {
+      margin-left:2rem; text-decoration:none; font-weight:500; color: var(--text-primary);
+      transition: color 0.3s, transform 0.3s;
+    }
+    nav a:hover { color: var(--accent); transform: translateY(-2px); }
+
+    /* Hero Section */
+    .hero {
+      display:flex; align-items:center; justify-content: space-between;
+      padding:6rem 3rem; max-width:1400px; margin:auto; flex-wrap:wrap;
+    }
+    .hero-text {
+      flex:1 1 500px; animation: fadeInUp 1.5s ease forwards;
+    }
+    .hero-text h2 {
+      font-size:3rem; line-height:1.2; margin-bottom:1rem; color: var(--text-primary);
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero-text p { font-size:1.2rem; color: var(--text-secondary); margin-bottom:2rem; }
+    .hero-text .cta { display:flex; gap:1rem; flex-wrap:wrap; }
+    .hero-text .cta a {
+      padding:1rem 2.5rem; font-weight:600; border-radius:30px;
+      color:#fff; text-decoration:none; box-shadow: 6px 6px 16px var(--shadow-dark), -6px -6px 16px var(--shadow-light);
+      transition: all 0.4s ease;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+    }
+    .hero-text .cta a:hover {
+      transform: translateY(-4px) scale(1.05);
+      box-shadow: 10px 10px 30px var(--shadow-dark), -10px -10px 30px var(--shadow-light);
+    }
+
+    .hero-animation { flex:1 1 500px; text-align:center; animation: fadeInRight 1.5s ease forwards; }
+    .hero-animation #lottie { width:100%; max-width:450px; margin:auto; }
+
+    @keyframes fadeInUp { 0% { opacity:0; transform: translateY(40px); } 100% { opacity:1; transform: translateY(0); } }
+    @keyframes fadeInRight { 0% { opacity:0; transform: translateX(40px); } 100% { opacity:1; transform: translateX(0); } }
+
+    /* Features */
+    .features { max-width:1400px; margin:4rem auto; display:grid;
+      grid-template-columns: repeat(auto-fit,minmax(280px,1fr)); gap:2rem; padding:0 3rem; 
+    }
+    .feature-card {
+      background: var(--card-bg); backdrop-filter: blur(20px);
+      border-radius: var(--radius); padding:2rem; box-shadow: 8px 8px 24px var(--shadow-dark), -8px -8px 24px var(--shadow-light);
+      transition: transform 0.4s ease, box-shadow 0.4s ease;
+    }
+    .feature-card:hover { transform: translateY(-10px); box-shadow: 12px 12px 36px var(--shadow-dark), -12px -12px 36px var(--shadow-light); }
+    .feature-card h3 { color: var(--accent); margin-bottom:1rem; font-size:1.4rem; }
+    .feature-card p { color: var(--text-secondary); font-size:1rem; line-height:1.5; }
+
+    /* Footer */
+    footer { padding:2rem; text-align:center; background:#fff; color: var(--text-secondary); margin-top:4rem;
+      box-shadow: 0 -4px 12px rgba(0,0,0,0.05);
+    }
+
+    @media(max-width:768px){
+      .hero { flex-direction: column-reverse; text-align:center; gap:3rem; padding:4rem 1.5rem; }
+      .hero-text h2 { font-size:2.2rem; }
+    }
+  </style>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="js/auth.js" defer></script>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <h1>Food Waste Platform</h1>
+    <nav>
+      <a href="auth.html">Login / Signup</a>
+      <a href="donate.html">Donate Food</a>
+      <a href="request.html">Need Food</a>
+      <a href="volunteer.html">Volunteer</a>
+      <a href="admin.html">Admin</a>
+    </nav>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-text">
+      <h2>Saving Surplus.<br>Serving Lives.</h2>
+      <p>Join our community: donate excess food, request meals, or volunteer to deliver food to those in need.</p>
+      <div class="cta">
+        <a href="donate.html">Donate Food</a>
+        <a href="request.html">Need Food</a>
+      </div>
+    </div>
+    <div class="hero-animation">
+      <div id="lottie"></div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features">
+    <div class="feature-card">
+      <h3>Real-Time Donations</h3>
+      <p>Track donations instantly with live updates, status tracking, and volunteer assignments.</p>
+    </div>
+    <div class="feature-card">
+      <h3>Volunteer Nearby</h3>
+      <p>See donations near you and help deliver meals efficiently using maps and location tracking.</p>
+    </div>
+    <div class="feature-card">
+      <h3>Secure Admin Panel</h3>
+      <p>Approve donations, manage requests, monitor analytics, and send notifications with ease.</p>
+    </div>
+    <div class="feature-card">
+      <h3>Gamified Impact</h3>
+      <p>Earn points, badges, and track your contribution while helping reduce food waste.</p>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    &copy; 2025 Food Waste Platform. All rights reserved.
+  </footer>
+
+  <!-- Lottie Animation -->
+  <script>
+    lottie.loadAnimation({
+      container: document.getElementById('lottie'),
+      renderer: 'svg',
+      loop: true,
+      autoplay: true,
+      path: 'assets/lottie/food.json' // Add your Lottie JSON file here
+    });
+  </script>
+</body>
+</html>

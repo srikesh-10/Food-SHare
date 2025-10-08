@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Donate Food | Food Waste Platform</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <style>
+    :root {
+      --primary: #FF6B6B;          /* Coral Red */
+      --secondary: #FFD93D;        /* Soft Yellow */
+      --bg: #F8F9FA;               /* Light Gray */
+      --card-bg: rgba(255,255,255,0.7);
+      --card-shadow: 0 8px 32px rgba(224,224,224,0.3);
+      --text-primary: #333333;
+      --text-secondary: #555555;
+      --accent: #4D96FF;
+      --status-Pending: #FFD93D;
+      --status-Assigned: #4D96FF;
+      --status-PickedUp: #4D96FF;
+      --status-InTransit: #4D96FF;
+      --status-Delivered: #32CD32;
+      --btn-radius: 12px;
+    }
+
+    * { box-sizing: border-box; font-family: 'Roboto', sans-serif; }
+
+    body { margin:0; padding:0; background: var(--bg); color: var(--text-primary); }
+
+    header {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: #fff;
+      padding: 1.5rem 2rem;
+      text-align: center;
+      font-weight: 700;
+      font-size: 1.7rem;
+      letter-spacing: 1px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .container { padding: 2rem; max-width: 1200px; margin: auto; }
+
+    /* Donation Form */
+    .donation-form {
+      background: var(--card-bg);
+      backdrop-filter: blur(15px);
+      padding: 2rem;
+      border-radius: 25px;
+      box-shadow: var(--card-shadow);
+      max-width: 600px;
+      margin-bottom: 2.5rem;
+    }
+    .donation-form h2 { text-align: center; color: var(--accent); margin-bottom: 1.5rem; }
+    .donation-form label { display:block; margin-top:1rem; color: var(--text-secondary); font-weight:500; }
+    .donation-form input, .donation-form select {
+      width:100%; padding:0.7rem 1rem; margin-top:0.3rem;
+      border-radius: var(--btn-radius); border:none;
+      box-shadow: inset 4px 4px 8px rgba(0,0,0,0.05), inset -4px -4px 8px rgba(255,255,255,0.7);
+      font-size: 1rem;
+    }
+    .donation-form button {
+      margin-top: 1.5rem;
+      width:100%;
+      padding:0.8rem;
+      font-weight:600;
+      font-size:1.1rem;
+      border:none; border-radius: var(--btn-radius);
+      background: var(--primary);
+      color:#fff;
+      cursor:pointer;
+      box-shadow: 6px 6px 12px rgba(0,0,0,0.1), -6px -6px 12px rgba(255,255,255,0.7);
+      transition: all 0.3s ease;
+    }
+    .donation-form button:hover { transform: translateY(-3px) scale(1.03); }
+
+    /* Donations List */
+    .donations-list h3 { color: var(--accent); margin-bottom:1rem; }
+    .donation-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(15px);
+      padding: 1.5rem;
+      border-radius: 20px;
+      box-shadow: var(--card-shadow);
+      margin-bottom: 1rem;
+      display: flex; justify-content: space-between; flex-wrap: wrap;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .donation-card:hover { transform: translateY(-5px); box-shadow: 0 10px 28px rgba(0,0,0,0.12); }
+    .donation-info p { margin:0.3rem 0; font-size:1rem; }
+    .donation-status { font-weight:700; padding:0.3rem 0.8rem; border-radius:10px; color:#fff; }
+    .status-Pending { background: var(--status-Pending); color:#333; }
+    .status-Assigned { background: var(--status-Assigned); }
+    .status-PickedUp { background: var(--status-PickedUp); }
+    .status-InTransit { background: var(--status-InTransit); }
+    .status-Delivered { background: var(--status-Delivered); }
+
+    @media (max-width:768px){
+      .donation-card { flex-direction: column; align-items:flex-start; }
+    }
+  </style>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+
+  <script src="js/auth.js" defer></script>
+  <script src="js/donate.js" defer></script>
+</head>
+<body>
+
+<header>Donate Food</header>
+
+<div class="container">
+  <!-- Donation Form -->
+  <div class="donation-form">
+    <h2>Submit a Donation</h2>
+    <label for="food-type">Food Type</label>
+    <input type="text" id="food-type" placeholder="Ex: Rice, Fruits, Bread">
+    
+    <label for="quantity">Quantity (Meals)</label>
+    <input type="number" id="quantity" placeholder="Number of meals">
+
+    <label for="expiry-date">Expiry Date</label>
+    <input type="date" id="expiry-date">
+
+    <label for="pickup-time">Pickup Time</label>
+    <input type="time" id="pickup-time">
+
+    <label for="location">Pickup Location</label>
+    <input type="text" id="location" placeholder="Enter your address or coordinates">
+
+    <button id="donate-btn">Donate Now</button>
+  </div>
+
+  <!-- Past Donations -->
+  <div class="donations-list">
+    <h3>Your Donations</h3>
+    <div id="donations-list">Loading donations...</div>
+  </div>
+</div>
+
+<script>
+  // js/donate.js
+  auth.onAuthStateChanged(user => {
+    if(!user){
+      alert("Please login first!");
+      window.location.href = "auth.html";
+    } else {
+      loadDonations(user.uid);
+    }
+  });
+
+  document.getElementById("donate-btn").addEventListener("click", () => {
+    const foodType = document.getElementById("food-type").value;
+    const quantity = document.getElementById("quantity").value;
+    const expiry = document.getElementById("expiry-date").value;
+    const pickupTime = document.getElementById("pickup-time").value;
+    const location = document.getElementById("location").value;
+
+    if(!foodType || !quantity || !expiry || !pickupTime || !location) return alert("All fields are required!");
+
+    const user = auth.currentUser;
+
+    db.collection("donations").add({
+      donorId: user.uid,
+      foodType,
+      quantity,
+      expiry,
+      pickupTime,
+      location,
+      status: "Pending",
+      volunteerId: null,
+      otp: null,
+      proofImage: null,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    })
+    .then(()=>{
+      alert("Donation submitted successfully!");
+      document.getElementById("food-type").value = "";
+      document.getElementById("quantity").value = "";
+      document.getElementById("expiry-date").value = "";
+      document.getElementById("pickup-time").value = "";
+      document.getElementById("location").value = "";
+
+      loadDonations(user.uid);
+    })
+    .catch(error=>alert(error.message));
+  });
+
+  function loadDonations(uid){
+    const list = document.getElementById("donations-list");
+    list.innerHTML = "Loading...";
+
+    db.collection("donations").where("donorId","==",uid)
+      .orderBy("createdAt","desc")
+      .onSnapshot(snapshot=>{
+        list.innerHTML = "";
+        snapshot.forEach(doc=>{
+          const donation = doc.data();
+          const div = document.createElement("div");
+          div.className = "donation-card";
+          div.innerHTML = `
+            <div class="donation-info">
+              <p><strong>Food:</strong> ${donation.foodType}</p>
+              <p><strong>Quantity:</strong> ${donation.quantity}</p>
+              <p><strong>Pickup:</strong> ${donation.pickupTime}, ${donation.location}</p>
+              <p class="donation-status status-${donation.status}">${donation.status}</p>
+            </div>
+          `;
+          list.appendChild(div);
+        });
+      });
+  }
+</script>
+
+</body>
+</html>

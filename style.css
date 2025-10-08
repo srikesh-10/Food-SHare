@@ -1,0 +1,205 @@
+/* --------------------- Global Styles --------------------- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', sans-serif;
+}
+
+body {
+  background-color: #F8F9FA;
+  color: #333333;
+  line-height: 1.6;
+}
+
+/* --------------------- Utility Classes --------------------- */
+.fade-in { opacity: 0; transform: translateY(20px); transition: all 0.6s ease; }
+.slide-in { opacity: 0; transform: translateX(-20px); transition: all 0.6s ease; }
+.appear { opacity: 1; transform: translate(0); }
+
+.toast {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background-color: #4D96FF;
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 8px;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.3s ease;
+  z-index: 1000;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+
+/* --------------------- Header & Nav --------------------- */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 30px;
+  background-color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  position: sticky;
+  top: 0;
+  z-index: 99;
+}
+
+header .logo { font-weight: 700; font-size: 1.5rem; color: #FF6B6B; }
+
+nav ul {
+  display: flex;
+  gap: 20px;
+}
+nav ul li a {
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+nav ul li a:hover { color: #FF6B6B; }
+
+#nav-toggle {
+  display: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+/* --------------------- Hero Section --------------------- */
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  height: 80vh;
+  background: linear-gradient(135deg, #FF6B6B, #FFD93D);
+  color: #fff;
+  padding: 0 20px;
+}
+
+.hero h1 { font-size: 3rem; margin-bottom: 20px; text-shadow: 1px 1px 6px rgba(0,0,0,0.2);}
+.hero p { font-size: 1.2rem; margin-bottom: 30px; }
+
+.hero-btn {
+  background-color: #FF6B6B;
+  color: #fff;
+  border: none;
+  padding: 15px 30px;
+  margin: 10px;
+  border-radius: 50px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+.hero-btn:hover { transform: translateY(-3px); box-shadow: 0 12px 24px rgba(0,0,0,0.2); }
+
+.hero-btn.glow { animation: glow 1.5s infinite alternate; }
+
+@keyframes glow {
+  0% { box-shadow: 0 0 10px #FF6B6B, 0 0 20px #FF6B6B; }
+  100% { box-shadow: 0 0 20px #FFD93D, 0 0 40px #FFD93D; }
+}
+
+/* --------------------- Glassmorphism Cards --------------------- */
+.card, .donation-card {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+  padding: 20px;
+  margin-bottom: 20px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover, .donation-card:hover { transform: translateY(-5px); box-shadow: 0 12px 28px rgba(0,0,0,0.2); }
+
+.donation-card button {
+  background-color: #4D96FF;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.donation-card button:hover { background-color: #32CD32; transform: translateY(-2px); }
+
+/* --------------------- Form Styles --------------------- */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+input, select, textarea {
+  padding: 12px 15px;
+  border-radius: 10px;
+  border: 1px solid #E0E0E0;
+  font-size: 1rem;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+input:focus, select:focus, textarea:focus { border-color: #FF6B6B; box-shadow: 0 0 10px rgba(255,107,107,0.3); }
+
+button {
+  cursor: pointer;
+  border: none;
+  border-radius: 25px;
+  padding: 12px 20px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+button.primary { background-color: #FF6B6B; color: #fff; }
+button.primary:hover { background-color: #FFD93D; color: #333; }
+
+/* --------------------- Status Badges --------------------- */
+.status-pending { color: #FFD93D; font-weight: 600; }
+.status-assigned { color: #4D96FF; font-weight: 600; }
+.status-pickedup { color: #4D96FF; font-weight: 600; }
+.status-intransit { color: #4D96FF; font-weight: 600; }
+.status-delivered { color: #32CD32; font-weight: 600; }
+
+/* --------------------- Dashboard Counters --------------------- */
+.counter {
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  padding: 20px;
+  margin: 10px;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease;
+}
+.counter:hover { transform: translateY(-5px); }
+
+/* --------------------- Profile --------------------- */
+.profile-card {
+  max-width: 600px;
+  margin: 0 auto;
+  text-align: center;
+}
+.profile-card img {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 15px;
+}
+
+/* --------------------- Responsive --------------------- */
+@media (max-width: 768px) {
+  nav ul { display: none; flex-direction: column; background: #fff; position: absolute; top: 60px; right: 0; width: 200px; padding: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+  nav ul.active { display: flex; }
+  #nav-toggle { display: block; }
+  .hero h1 { font-size: 2.2rem; }
+  .hero p { font-size: 1rem; }
+}

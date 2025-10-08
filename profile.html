@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Profile | Food Waste Platform</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary: #FF6B6B;
+      --secondary: #FFD93D;
+      --accent: #4D96FF;
+      --bg: #F8F9FA;
+      --card-bg: rgba(255,255,255,0.7);
+      --text-primary: #333333;
+      --text-secondary: #555555;
+      --radius: 20px;
+      --shadow-light: rgba(255,255,255,0.8);
+      --shadow-dark: rgba(0,0,0,0.1);
+    }
+
+    * { box-sizing: border-box; font-family: 'Roboto', sans-serif; margin:0; padding:0; }
+    body { background: var(--bg); color: var(--text-primary); }
+
+    header {
+      display:flex; justify-content: space-between; align-items:center;
+      padding:1rem 3rem; background: #fff; border-bottom: 1px solid #eee;
+      position: sticky; top:0; z-index:1000; box-shadow: 0 8px 30px rgba(0,0,0,0.05);
+    }
+    header h1 { color: var(--primary); font-weight:700; font-size:1.8rem; letter-spacing:1px; }
+    nav a {
+      margin-left:2rem; text-decoration:none; font-weight:500; color: var(--text-primary);
+      transition: color 0.3s, transform 0.3s;
+    }
+    nav a:hover { color: var(--accent); transform: translateY(-2px); }
+
+    main { max-width:1000px; margin:4rem auto; padding:0 2rem; }
+
+    .profile-card {
+      background: var(--card-bg); backdrop-filter: blur(20px);
+      border-radius: var(--radius); padding:2.5rem; box-shadow: 8px 8px 24px var(--shadow-dark), -8px -8px 24px var(--shadow-light);
+      display:flex; flex-direction: column; align-items: center; text-align:center;
+      transition: transform 0.4s ease, box-shadow 0.4s ease;
+    }
+    .profile-card:hover { transform: translateY(-8px); box-shadow: 12px 12px 36px var(--shadow-dark), -12px -12px 36px var(--shadow-light); }
+
+    .profile-card img {
+      width:150px; height:150px; border-radius:50%; object-fit:cover; margin-bottom:1.5rem;
+      border:4px solid var(--primary);
+    }
+
+    .profile-card h2 { margin-bottom:0.5rem; font-size:1.8rem; color: var(--accent); }
+    .profile-card p { margin-bottom:1rem; color: var(--text-secondary); font-size:1rem; }
+
+    .profile-card input, .profile-card select {
+      width:100%; max-width:400px; padding:0.8rem 1rem; margin-bottom:1rem;
+      border-radius:30px; border:none; box-shadow: 6px 6px 16px var(--shadow-dark), -6px -6px 16px var(--shadow-light);
+      font-size:1rem;
+      outline:none;
+    }
+
+    .profile-card button {
+      padding:0.8rem 2rem; font-weight:600; border-radius:30px; border:none;
+      color:#fff; font-size:1rem; cursor:pointer;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      box-shadow: 6px 6px 16px var(--shadow-dark), -6px -6px 16px var(--shadow-light);
+      transition: all 0.3s ease;
+    }
+    .profile-card button:hover {
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 10px 10px 30px var(--shadow-dark), -10px -10px 30px var(--shadow-light);
+    }
+
+    footer { padding:2rem; text-align:center; background:#fff; color: var(--text-secondary); margin-top:4rem;
+      box-shadow: 0 -4px 12px rgba(0,0,0,0.05);
+    }
+
+    @media(max-width:768px){ .profile-card { padding:2rem 1.5rem; } }
+  </style>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+  <script src="js/auth.js" defer></script>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <h1>Food Waste Platform</h1>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="donate.html">Donate Food</a>
+      <a href="request.html">Need Food</a>
+      <a href="volunteer.html">Volunteer</a>
+      <a href="admin.html">Admin</a>
+      <a href="#" id="logout-btn">Logout</a>
+    </nav>
+  </header>
+
+  <main>
+    <div class="profile-card">
+      <img id="profile-pic" src="assets/images/default-avatar.png" alt="Profile Picture">
+      <input type="file" id="upload-pic" accept="image/*">
+      
+      <input type="text" id="profile-name" placeholder="Full Name">
+      <input type="email" id="profile-email" placeholder="Email" disabled>
+      <select id="profile-role">
+        <option value="donor">Donor</option>
+        <option value="receiver">Receiver</option>
+        <option value="volunteer">Volunteer</option>
+      </select>
+
+      <button id="update-btn">Update Profile</button>
+    </div>
+  </main>
+
+  <footer>
+    &copy; 2025 Food Waste Platform. All rights reserved.
+  </footer>
+
+  <script>
+    // Ensure user is logged in
+    auth.onAuthStateChanged(user => {
+      if (!user) {
+        alert("Please login first!");
+        window.location.href = "auth.html";
+      } else {
+        const uid = user.uid;
+        const profilePic = document.getElementById("profile-pic");
+        const nameInput = document.getElementById("profile-name");
+        const emailInput = document.getElementById("profile-email");
+        const roleSelect = document.getElementById("profile-role");
+
+        // Load user data
+        db.collection("users").doc(uid).get().then(doc => {
+          if (doc.exists) {
+            const data = doc.data();
+            nameInput.value = data.name || "";
+            emailInput.value = data.email || "";
+            roleSelect.value = data.role || "donor";
+            if (data.photoURL) profilePic.src = data.photoURL;
+          }
+        });
+
+        // Upload profile pic
+        document.getElementById("upload-pic").addEventListener("change", e => {
+          const file = e.target.files[0];
+          if (!file) return;
+          const storageRef = storage.ref(`profilePics/${uid}`);
+          storageRef.put(file).then(() => {
+            storageRef.getDownloadURL().then(url => {
+              profilePic.src = url;
+              db.collection("users").doc(uid).update({ photoURL: url });
+              alert("Profile picture updated!");
+            });
+          });
+        });
+
+        // Update profile
+        document.getElementById("update-btn").addEventListener("click", () => {
+          const name = nameInput.value;
+          const role = roleSelect.value;
+          if (!name) return alert("Name cannot be empty!");
+          db.collection("users").doc(uid).update({ name, role })
+            .then(() => alert("Profile updated successfully!"))
+            .catch(err => alert(err.message));
+        });
+
+        // Logout
+        document.getElementById("logout-btn").addEventListener("click", () => {
+          auth.signOut().then(() => window.location.href="auth.html");
+        });
+      }
+    });
+  </script>
+</body>
+</html>

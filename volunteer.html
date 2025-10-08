@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Volunteer Dashboard | Food Waste Platform</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary: #FF6B6B;
+      --secondary: #FFD93D;
+      --accent: #4D96FF;
+      --bg: #F8F9FA;
+      --card-bg: rgba(255,255,255,0.7);
+      --text-primary: #333333;
+      --text-secondary: #555555;
+      --status-Pending: #FFD93D;
+      --status-Assigned: #4D96FF;
+      --status-PickedUp: #4D96FF;
+      --status-InTransit: #4D96FF;
+      --status-Delivered: #32CD32;
+      --radius: 20px;
+      --shadow-light: rgba(255,255,255,0.8);
+      --shadow-dark: rgba(0,0,0,0.1);
+    }
+
+    * { box-sizing: border-box; font-family: 'Roboto', sans-serif; margin:0; padding:0; }
+    body { background: var(--bg); color: var(--text-primary); }
+
+    header {
+      display:flex; justify-content: space-between; align-items:center;
+      padding:1rem 3rem; background: #fff; border-bottom: 1px solid #eee;
+      position: sticky; top:0; z-index:1000; box-shadow: 0 8px 30px rgba(0,0,0,0.05);
+    }
+    header h1 { color: var(--primary); font-weight:700; font-size:1.8rem; letter-spacing:1px; }
+    nav a {
+      margin-left:2rem; text-decoration:none; font-weight:500; color: var(--text-primary);
+      transition: color 0.3s, transform 0.3s;
+    }
+    nav a:hover { color: var(--accent); transform: translateY(-2px); }
+
+    main { max-width:1100px; margin:4rem auto; padding:0 2rem; }
+
+    .card {
+      background: var(--card-bg); backdrop-filter: blur(20px);
+      border-radius: var(--radius); padding:1.5rem; box-shadow: 8px 8px 24px var(--shadow-dark), -8px -8px 24px var(--shadow-light);
+      margin-bottom:1.5rem; transition: transform 0.3s ease;
+    }
+    .card:hover { transform: translateY(-5px); }
+
+    .card h3 { color: var(--accent); margin-bottom:0.5rem; }
+    .card p { color: var(--text-secondary); margin-bottom:0.3rem; }
+    .status-badge {
+      padding:0.3rem 0.8rem; border-radius:20px; color:#fff; font-weight:600; font-size:0.85rem; display:inline-block;
+    }
+    .status-Pending { background: var(--status-Pending); color:#333; }
+    .status-Assigned { background: var(--status-Assigned); }
+    .status-PickedUp { background: var(--status-PickedUp); }
+    .status-InTransit { background: var(--status-InTransit); }
+    .status-Delivered { background: var(--status-Delivered); }
+
+    .filter-card {
+      display:flex; flex-wrap:wrap; gap:1rem; background: var(--card-bg); backdrop-filter: blur(20px);
+      padding:1.5rem; border-radius: var(--radius); margin-bottom:2rem;
+      box-shadow: 8px 8px 24px var(--shadow-dark), -8px -8px 24px var(--shadow-light);
+    }
+    .filter-card input { padding:0.6rem 1rem; border-radius:30px; border:none; box-shadow: 6px 6px 16px var(--shadow-dark), -6px -6px 16px var(--shadow-light); outline:none; }
+    .filter-card button {
+      padding:0.6rem 1.5rem; border-radius:30px; border:none; cursor:pointer;
+      background: linear-gradient(135deg, var(--primary), var(--accent)); color:#fff; font-weight:600;
+      transition: all 0.3s ease;
+    }
+    .filter-card button:hover { transform: translateY(-2px) scale(1.05); }
+
+    footer { padding:2rem; text-align:center; background:#fff; color: var(--text-secondary); margin-top:4rem; box-shadow: 0 -4px 12px rgba(0,0,0,0.05); }
+
+    @media(max-width:768px){
+      main { margin:2rem auto; padding:0 1rem; }
+      .filter-card { flex-direction: column; }
+    }
+  </style>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+  <script src="js/auth.js" defer></script>
+</head>
+<body>
+
+<header>
+  <h1>Food Waste Platform</h1>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="donate.html">Donate Food</a>
+    <a href="profile.html">Profile</a>
+    <a href="#" id="logout-btn">Logout</a>
+  </nav>
+</header>
+
+<main>
+  <div class="filter-card">
+    <input type="number" id="max-distance" placeholder="Max Travel Distance (km)">
+    <button id="refresh-btn">Refresh Nearby Donations</button>
+  </div>
+
+  <h2>Nearby Donations</h2>
+  <div id="donations-list">Loading...</div>
+</main>
+
+<footer>
+  &copy; 2025 Food Waste Platform. All rights reserved.
+</footer>
+
+<script>
+auth.onAuthStateChanged(user => {
+  if(!user){
+    alert("Please login first!");
+    window.location.href="auth.html";
+  } else {
+    const uid = user.uid;
+    let currentLocation = null;
+    const maxDistanceInput = document.getElementById("max-distance");
+    const donationsList = document.getElementById("donations-list");
+
+    // Logout
+    document.getElementById("logout-btn").addEventListener("click", ()=>{ auth.signOut().then(()=>window.location.href="auth.html"); });
+
+    // Get current location
+    if(navigator.geolocation){
+      navigator.geolocation.getCurrentPosition(pos => {
+        currentLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        loadNearbyDonations();
+      }, err=>{
+        alert("Geolocation failed. Enter max distance manually and click Refresh.");
+      });
+    }
+
+    document.getElementById("refresh-btn").addEventListener("click", ()=>{
+      loadNearbyDonations();
+    });
+
+    function loadNearbyDonations(){
+      donationsList.innerHTML = "Loading...";
+      const maxDistance = parseFloat(maxDistanceInput.value) || 5;
+
+      db.collection("donations").where("status","==","Pending").orderBy("createdAt","desc")
+      .get().then(snapshot=>{
+        donationsList.innerHTML = "";
+        snapshot.forEach(doc=>{
+          const donation = doc.data();
+          const donationLoc = donation.locationCoords || null;
+
+          let distanceKm = 0;
+          if(currentLocation && donationLoc){
+            const R = 6371;
+            const dLat = (donationLoc.lat-currentLocation.lat)*Math.PI/180;
+            const dLng = (donationLoc.lng-currentLocation.lng)*Math.PI/180;
+            const a = Math.sin(dLat/2)**2 + Math.cos(currentLocation.lat*Math.PI/180)*Math.cos(donationLoc.lat*Math.PI/180)*Math.sin(dLng/2)**2;
+            const c = 2*Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            distanceKm = R*c;
+          }
+
+          if(distanceKm <= maxDistance){
+            const div = document.createElement("div");
+            div.className="card";
+            div.innerHTML = `
+              <h3>${donation.foodType} (${donation.quantity})</h3>
+              <p><strong>Pickup:</strong> ${donation.pickupTime}, ${donation.location}</p>
+              <p><strong>Distance:</strong> ${distanceKm.toFixed(2)} km</p>
+              <span class="status-badge status-${donation.status}">${donation.status}</span>
+            `;
+            donationsList.appendChild(div);
+          }
+        });
+
+        if(donationsList.innerHTML==="") donationsList.innerHTML="<p>No donations found in range.</p>";
+      });
+    }
+  }
+});
+</script>
+</body>
+</html>
